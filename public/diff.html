@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type='text/javascript' src="https://cdn.jsdelivr.net/npm/jsondiffpatch/dist/jsondiffpatch.umd.min.js"></script>
+        <link rel="stylesheet" href="./style.css" type="text/css" />
+        <link rel="stylesheet" href="../formatters-styles/html.css" type="text/css" />
+        <link rel="stylesheet" href="../formatters-styles/annotated.css" type="text/css" />
+    </head>
+    <body>
+        <label for="version1">First version</label>
+        <select id="version1"
+            onchange="versionChange(event.target)"
+        ></select>
+        <br />
+        <label for="version2">Second version</label>
+        <select id="version2"
+        onchange="versionChange(event.target)"></select>
+        <div id="visual"></div>
+        <hr/>
+        <div id="annotated"></div>
+        <script>
+            const bucket = "jst-backend-901684754058";
+            const id = getId();
+            function getId() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('id');
+            }
+            async function performDiff(id, version1, version2) {
+                const left = 
+                    await getObject(id, version1);                
+                const right = 
+                    await getObject(id, version2);                
+                var delta = jsondiffpatch.diff(left, right);
+
+                // beautiful html diff
+                document.getElementById('visual').innerHTML = jsondiffpatch.formatters.html.format(delta, left);
+
+                // self-explained json
+                document.getElementById('annotated').innerHTML = jsondiffpatch.formatters.annotated.format(delta, left);
+            }
+
+            async function getObject(id, version) {
+                return (await fetch(`/api/bucket/${bucket}/object/scopes%2f${id}.json/version/${version}`)).json();
+            }
+
+            async function getVersions(id) {
+                return (await fetch(`/api/bucket/${bucket}/object/scopes%2f${id}.json/versions`)).json();
+            }
+
+            getVersions("003d2797-5547-4d16-a33d-c9d8060d5496").then(versions => {
+                const selector1 = document.getElementById("version1");
+                const selector2 = document.getElementById("version2");
+                versions.forEach(version => 
+                    selector1.appendChild(
+                        mapVersionToOption(version)
+                    )
+                );
+                versions.forEach(version => 
+                    selector2.appendChild(
+                        mapVersionToOption(version)
+                    )
+                );
+            });
+            function mapVersionToOption(version) {
+                return Object.assign(
+                    document.createElement("option"),
+                    {
+                        value: version.VersionId,
+                        text: version.LastModified
+                    }
+                );
+            }
+            function versionChange($event) {
+                const selector1 = document.getElementById("version1");
+                const selector2 = document.getElementById("version2");
+                performDiff(id, selector1.value, selector2.value);
+            }
+        </script>
+    </body>
+</html>

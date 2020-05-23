@@ -1,0 +1,1 @@
+export const Bucket = "jst-backend-901684754058"
