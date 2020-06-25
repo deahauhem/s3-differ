@@ -9,6 +9,7 @@ export default async (request: Request, response: Response ) => {
         Bucket: request.params.bucket
     }
 
+    console.log(request.params.id);
     let s3Response: S3.ListObjectVersionsOutput;
     let versionList: unknown[] = [];
     do {

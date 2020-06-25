@@ -19,7 +19,7 @@
         <hr/>
         <div id="annotated"></div>
         <script>
-            const bucket = "jst-backend-901684754058";
+            const bucket = "jst-backend-prod-058150282360";
             const id = getId();
             function getId() {
                 const urlParams = new URLSearchParams(window.location.search);
@@ -40,14 +40,14 @@
             }
 
             async function getObject(id, version) {
-                return (await fetch(`/api/bucket/${bucket}/object/scopes%2f${id}.json/version/${version}`)).json();
+                return (await fetch(`http://localhost:3000/api/bucket/${bucket}/object/scopes%2f${id}.json/version/${version}`)).json();
             }
 
             async function getVersions(id) {
-                return (await fetch(`/api/bucket/${bucket}/object/scopes%2f${id}.json/versions`)).json();
+                return (await fetch(`http://localhost:3000/api/bucket/${bucket}/object/scopes%2f${id}.json/versions`)).json();
             }
 
-            getVersions("003d2797-5547-4d16-a33d-c9d8060d5496").then(versions => {
+            getVersions(id).then(versions => {
                 const selector1 = document.getElementById("version1");
                 const selector2 = document.getElementById("version2");
                 versions.forEach(version => 

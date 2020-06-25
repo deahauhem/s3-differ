@@ -1,1 +1,1 @@
-export const Bucket = "jst-backend-901684754058"
+export const Bucket = "jst-backend-prod-058150282360"

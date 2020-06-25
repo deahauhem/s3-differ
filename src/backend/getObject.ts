@@ -6,6 +6,7 @@ export default async (request: Request, response: Response ) => {
     const getParams = {
         Bucket: request.params.bucket
     }
+    console.log('getting:', request.params.id, request.params.version)
 
     const object = await s3.getObject({
         ...getParams,

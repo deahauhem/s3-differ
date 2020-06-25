@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import process from "process";
 import listObjects from "./listObjects";
 import listVersions from "./listVersions";
@@ -8,6 +9,7 @@ const app = express()
 const port = process.env.PORT ?? 3000;
 
 app.use(express.static("public"));
+app.use(cors());
 
 app.get('/api/bucket/:bucket/prefix/:prefix/list', listObjects)
 app.get('/api/bucket/:bucket/object/:id/versions', listVersions)
