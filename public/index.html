@@ -22,6 +22,10 @@
                 flex-wrap: nowrap;
                 align-items: baseline;
             }
+            .diff {
+                border: 2px inset silver;
+                overflow: scroll;
+            }
         </style>
         <div class="controls">
             <input class="form-element" id="scopeId" type="text" onchange="reinit()"/>
@@ -38,7 +42,7 @@
                 Show unchanged values
             </label>
         </div>
-        <div id="visual" style="border: 2px inset silver;"></div>
+        <div id="visual" class="diff"></div>
         <script>
             const bucket = "jst-backend-prod-058150282360";
             const id = getId();
