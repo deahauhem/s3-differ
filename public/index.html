@@ -9,27 +9,40 @@
     <body onload="">
         <style>
             .controls {
+                font-family: sans-serif;
                 display: flex;
                 flex-direction: column;
                 flex-wrap: wrap;
+                position: sticky;
+                top: -2px;
+                background-color: white;
+                padding: 10px;
             }
             .form-element {
                 margin: 5px;
                 padding: 5px;
             }
-            .comparison {
+            .form-field {
+                align-items: stretch;
                 display: flex;
                 flex-wrap: nowrap;
                 align-items: baseline;
             }
             .diff {
                 border: 2px inset silver;
-                overflow: scroll;
+                overflow: auto;
+                background-color: rgb(231, 231, 231)
             }
         </style>
         <div class="controls">
-            <input class="form-element" id="scopeId" type="text" onchange="reinit()"/>
-            <div class="comparison">
+            <div class="form-field">
+                <label for="scopeId">
+                    Scope ID:
+                </label>
+                <input class="form-element" id="scopeId" type="text" size="36" onchange="reinit()"/>
+            </div>
+            <div class="form-field">
+                <div>Compare: </div>
                 <select id="version1" class="form-element" 
                 onchange="versionChange(event.target)"
                 ></select>
@@ -37,10 +50,12 @@
                 <select id="version2" class="form-element" 
                 onchange="versionChange(event.target)"></select>
             </div>
-            <label>
+            <div class="form-field">
+                <label for="showunchanged">
+                    Show unchanged values: 
+                </label>
                 <input id="showunchanged" type="checkbox" class="form-element" />
-                Show unchanged values
-            </label>
+            </div>
         </div>
         <div id="visual" class="diff"></div>
         <script>
@@ -108,7 +123,7 @@
                 });
             }
             function mapVersionToOption(version) {
-                const formatter = new Intl.DateTimeFormat('default', {
+                const formatter = new Intl.DateTimeFormat('en-AU', {
                     year: 'numeric', month: 'numeric', day: 'numeric',
                     hour: 'numeric', minute: 'numeric', second: 'numeric',
                     hour12: false,
