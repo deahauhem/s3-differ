@@ -1,9 +1,14 @@
-how to start
-frontend: run `npm start`
+s3 diff
+=======
 
-backend:
+how to start
+------------
+in index.html ensure the bucket name is correct
+
 set AWS_PROFILE appropriately
-run `npm run backend`
+
+run `npm start`
 
 then:
-visit `http://localhost:5000/diff.html?id=<scope id>`
+
+visit `http://localhost:5000/?id=<scope id>`

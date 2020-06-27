@@ -7,12 +7,16 @@ export default async (request: Request, response: Response ) => {
         Bucket: request.params.bucket
     }
     console.log('getting:', request.params.id, request.params.version)
+    try {
+        const object = await s3.getObject({
+            ...getParams,
+            Key: request.params.id,
+            VersionId: request.params.version
+        }).promise();
 
-    const object = await s3.getObject({
-        ...getParams,
-        Key: request.params.id,
-        VersionId: request.params.version
-    }).promise();
-
-    response.send(object.Body);
+        response.send(object.Body);
+    } catch (error) {
+        response.statusCode = 500
+        response.send("Error fetching versions" + error?.message)
+    }
 }

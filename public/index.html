@@ -1,18 +1,130 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset='utf-8'>
-	<meta name='viewport' content='width=device-width,initial-scale=1'>
+<html>
+    <head>
+        <script type='text/javascript' src="https://cdn.jsdelivr.net/npm/jsondiffpatch/dist/jsondiffpatch.umd.min.js"></script>
+        <link rel="stylesheet" href="./style.css" type="text/css" />
+        <link rel="stylesheet" href="../formatters-styles/html.css" type="text/css" />
+        <link rel="stylesheet" href="../formatters-styles/annotated.css" type="text/css" />
+    </head>
+    <body onload="">
+        <style>
+            .controls {
+                display: flex;
+                flex-direction: column;
+                flex-wrap: wrap;
+            }
+            .form-element {
+                margin: 5px;
+                padding: 5px;
+            }
+            .comparison {
+                display: flex;
+                flex-wrap: nowrap;
+                align-items: baseline;
+            }
+        </style>
+        <div class="controls">
+            <input class="form-element" id="scopeId" type="text" onchange="reinit()"/>
+            <div class="comparison">
+                <select id="version1" class="form-element" 
+                onchange="versionChange(event.target)"
+                ></select>
+                vs
+                <select id="version2" class="form-element" 
+                onchange="versionChange(event.target)"></select>
+            </div>
+            <label>
+                <input id="showunchanged" type="checkbox" class="form-element" />
+                Show unchanged values
+            </label>
+        </div>
+        <div id="visual" style="border: 2px inset silver;"></div>
+        <script>
+            const bucket = "jst-backend-prod-058150282360";
+            const id = getId();
+            const dom = {
+                on: function(el, eventName, handler) {
+                    if (el.addEventListener) {
+                        el.addEventListener(eventName, handler);
+                    } else {
+                        el.attachEvent('on' + eventName, handler);
+                    }
+                }
+            }
+            function getIdFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('id');
+            }
+            function getId() {
+                return document.getElementById('scopeId').value;
+            }
+            async function performDiff(id, version1, version2) {
+                const left = 
+                    await getObject(id, version1);                
+                const right = 
+                    await getObject(id, version2);                
+                var delta = jsondiffpatch.diff(left, right);
 
-	<title>Svelte app</title>
+                // beautiful html diff
+                document.getElementById('visual').innerHTML = 
+                    jsondiffpatch.formatters.html.format(delta, left);
+                if (!document.getElementById('showunchanged').checked) {
+                    jsondiffpatch.formatters.html.hideUnchanged();
+                }
+                dom.on(document.getElementById('showunchanged'), 'change', function() {
+                    jsondiffpatch.formatters.html.showUnchanged(
+                    document.getElementById('showunchanged').checked,
+                    null,
+                    800
+                    );
+                });
+            }
+            async function getObject(id, version) {
+                return (await fetch(`http://localhost:3000/api/bucket/${bucket}/object/scopes%2f${getId()}.json/version/${version}`)).json();
+            }
 
-	<link rel='icon' type='image/png' href='/favicon.png'>
-	<link rel='stylesheet' href='/global.css'>
-	<link rel='stylesheet' href='/build/bundle.css'>
+            async function getVersions(id) {
+                return (await fetch(`http://localhost:3000/api/bucket/${bucket}/object/scopes%2f${getId()}.json/versions`)).json();
+            }
 
-	<script defer src='/build/bundle.js'></script>
-</head>
-
-<body>
-</body>
+            function reinit() {
+                getVersions(getId()).then(versions => {
+                    const selector1 = document.getElementById("version1");
+                    const selector2 = document.getElementById("version2");
+                    versions.forEach(version => 
+                        selector1.appendChild(
+                            mapVersionToOption(version)
+                        )
+                    );
+                    versions.forEach(version => 
+                        selector2.appendChild(
+                            mapVersionToOption(version)
+                        )
+                    );
+                });
+            }
+            function mapVersionToOption(version) {
+                const formatter = new Intl.DateTimeFormat('default', {
+                    year: 'numeric', month: 'numeric', day: 'numeric',
+                    hour: 'numeric', minute: 'numeric', second: 'numeric',
+                    hour12: false,
+                    timeZoneName: "short"
+                })
+                return Object.assign(
+                    document.createElement("option"),
+                    {
+                        value: version.VersionId,
+                        text: formatter.format(new Date(version.LastModified))
+                    }
+                );
+            }
+            function versionChange($event) {
+                const selector1 = document.getElementById("version1");
+                const selector2 = document.getElementById("version2");
+                performDiff(id, selector1.value, selector2.value);
+            }
+            document.getElementById('scopeId').value = getIdFromUrl();
+            reinit()
+        </script>
+    </body>
 </html>
