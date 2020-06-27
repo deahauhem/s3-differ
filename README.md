@@ -11,4 +11,4 @@ run `npm start`
 
 then:
 
-visit `http://localhost:5000/?id=<scope id>`
+visit `http://localhost:3000/?id=<scope id>`
