@@ -2,6 +2,9 @@
 <html>
     <head>
         <script type='text/javascript' src="https://cdn.jsdelivr.net/npm/jsondiffpatch/dist/jsondiffpatch.umd.min.js"></script>
+        <style>
+            .hide { display: none !important; }
+        </style>
         <link rel="stylesheet" href="./style.css" type="text/css" />
         <link rel="stylesheet" href="../formatters-styles/html.css" type="text/css" />
         <link rel="stylesheet" href="../formatters-styles/annotated.css" type="text/css" />
@@ -43,18 +46,21 @@
                     }
                 }
             }
+
             function getIdFromUrl() {
                 const urlParams = new URLSearchParams(window.location.search);
                 return urlParams.get('id');
             }
+
             function getId() {
                 return document.getElementById('scopeId').value;
             }
+
             async function performDiff(id, version1, version2) {
-                const left = 
-                    await getObject(id, version1);                
-                const right = 
-                    await getObject(id, version2);                
+                const left =
+                    await getObject(id, version1);
+                const right =
+                    await getObject(id, version2);
                 var delta = jsondiffpatch.diff(left, right);
 
                 // beautiful html diff
@@ -70,6 +76,11 @@
                     800
                     );
                 });
+
+                document.querySelectorAll(".jsondiffpatch-added, .jsondiffpatch-deleted, .jsondiffpatch-modified")
+                .forEach(element => element.addEventListener("click", function() {
+                    this.querySelectorAll(".jsondiffpatch-value").forEach(valueElement => valueElement.classList.toggle("hide"));
+                }))
             }
             async function getObject(id, version) {
                 return (await fetch(`http://localhost:3000/api/bucket/${bucket}/object/scopes%2f${getId()}.json/version/${version}`)).json();
@@ -95,6 +106,7 @@
                     );
                 });
             }
+
             function mapVersionToOption(version) {
                 const formatter = new Intl.DateTimeFormat('en-AU', {
                     year: 'numeric', month: 'numeric', day: 'numeric',
@@ -110,6 +122,7 @@
                     }
                 );
             }
+
             function versionChange($event) {
                 const selector1 = document.getElementById("version1");
                 const selector2 = document.getElementById("version2");
