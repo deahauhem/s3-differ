@@ -22,7 +22,7 @@
   "dependencies": {
     "aws-sdk": "^2.814.0",
     "cors": "^2.8.5",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "jsondiffpatch": "^0.4.1",
     "sirv-cli": "^0.4.4",
     "typescript": "^3.9.3"
